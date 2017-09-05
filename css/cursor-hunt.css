@@ -21,6 +21,9 @@ body {
 }
 
 #trophies {
+  position: fixed;
+  right: 0;
+  top: 0;
   width: 10%;
   min-width: 50px;
   text-align: center;
