@@ -17,6 +17,7 @@ var level;
 var newGameButton = document.getElementById("new-game");
 var instructionsBox = document.getElementById("instructions");
 var rescuedCursorsBox = document.getElementById("trophies");
+var gridBox = document.getElementById("grid");
 
 newGameButton.onclick = function() {
     changeDialog("objective",spin(dialogStartGame));
@@ -135,11 +136,7 @@ function newGame(level) {
     changeDialog("new-game", spin(wordingButtonNewGame));
     changeDialog("objective",spin(dialogStartGame));
     var level = Math.floor(Math.random()* 10) + 15;
-    var o = document.getElementById("grid").childElementCount;
-    var oldDivs = document.getElementById("grid");
-    for (var i = 0; i < o; i++) {
-        oldDivs.removeChild(oldDivs.childNodes[0]);
-    }
+    clearDivs("grid-sizer");
     console.log("old divs have been removed");
     setCursors(level);
     setWinningCursor();
@@ -150,6 +147,10 @@ function newGame(level) {
   else {};
 };
 
+var classToRemove;
+function clearDivs(classToRemove) {
+  $("grid").remove(classToRemove);
+};
 
 // SPINTAX
 
@@ -185,7 +186,7 @@ var spin_countVariations = function (spun) {
 var dialogStartGame = "Thanks for your help!\nIt's here somewhere on this page, use your mouse to find it.\nClick to capture it!";
 var dialogRestartGame = "";
 var dialogIfVictory = "{God bless you!|Theeeeere it was...|Oh! It was there all along?!?|Yay, thanks!}";
-var dialogIfAlternate = "{We don't have time for this...}\n{If you must know, I am the Shepherd of cursors. I used to be {really|super} important in the world of computers...|Cursors are a really important part of computers. Someone has to care for them.|I have my reasons.}\n{Now{,|} will you help me?}";
+var dialogIfAlternate =  "{We don't have time for this.|Curiosity killed the cat, you know that right?|You sure have a lot of questions, unique visitor!}\n{I go by the name of the|They call me the} {Lord|Protector} of Cursors. I used to be very important in the world of computers! Now look at me, {asking|begging} for a stranger's help... {Cursors are an endangered species, nowadays. People use their fingers now, can you believe that? Truly disgusting.|Cursors used to be loved and cherished. But people forget.|To tell you the truth, I fear for the very existence of cursors.}\n{Now, if we could go back to our business.|Now, can you help me find this one?|That's why there's no time to waste. Help me rescue them!}";
 var dialogIfWrongCursor = "Nope, I'm afraid that's {not the one...|the wrong one...}\n{Thanks, but maybe I should ask someone else...|}\n{Have you tried scrolling around?|Keep looking!}";
 var dialogIfNotHere = "";
 var dialogIfPicture = "";
