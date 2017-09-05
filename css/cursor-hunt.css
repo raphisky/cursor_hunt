@@ -11,9 +11,31 @@ body {
   vertical-align: middle;
   width: auto;
   padding: 12px;
-  box-shadow: 2px -2px 1px #888888;
+  box-shadow: 2px 1px 4px 1px #888888;
 
 }
+#grid {
+  width: 90%;
+  display: block;
+  float: left;
+}
+
+#trophies {
+  width: 10%;
+  min-width: 50px;
+  text-align: center;
+  float: right;
+  height: 100vh;
+  border-left: 1px dotted grey;
+}
+
+#trophies img {
+  padding-top: 12px;
+  display: block;
+  margin: auto;
+}
+
+
 
 .grid-item {
   display: inline-block;
