@@ -13,6 +13,19 @@ $.getJSON("https://spreadsheets.google.com/feeds/list/1EKoHbcOQAXVUbv9yOYlQ4qL8A
 var availableCursors = [];
 var winningCursor;
 
+var level;
+var newGameButton = document.getElementById("new-game");
+var instructionsBox = document.getElementById("instructions");
+var rescuedCursorsBox = document.getElementById("trophies");
+
+
+newGameButton.onclick = function() {
+  newGame(level);
+  newGameButton.style.display = "none";
+  instructionsBox.classList.add("boxed");
+  rescuedCursorsBox.style.opacity = "1";
+};
+
 function setCursors(n) {
   availableCursors = [];
   for (var i =0; i < n ; i++) {
@@ -38,27 +51,39 @@ $("body").click(function( event ) {
   var formattedWinningCursor = "url("+"\""+winningCursor+"\""+"), default";
   var clickedDivId = event.target.id; // prevents from winning when clicking on the result box;
   console.log("clicked Cursor:" + clickedCursor + "|| Winning Cursor : " + formattedWinningCursor);
+
+  // VICTORY
+
   if (String(clickedCursor).valueOf() === String(formattedWinningCursor).valueOf() && clickedDivId != "objective" ) {
     console.log("well done.");
     changeDialog("objective",spin(dialogIfVictory));
+    // Add trophy to trophy div:
     var newTrophy = document.createElement("img");
     newTrophy.setAttribute("src",winningCursor);
     document.getElementById("trophies").appendChild(newTrophy);
-    document.getElementById("winningCursorImg").style.display = none;
-    changeDialog("new-game", spin(wordingButtonNewGame));
+    document.getElementById("winningCursorImage").style.display = "none";
+    //Start new game
+    setTimeout(function() {
+      newGame(level)
+    },delayNewGame);
   }
+
   else if (clickedDivId == "new-game") {
   }
+
   else if (clickedDivId == "instructions") {
     changeDialog("objective","I've already looked here. It must be somewhere on the page.");
   }
+
   else if (clickedDivId == "objective") {
     changeDialog("objective","This is only a picture... smh");
   }
+
   else if (clickedDivId == "alternate") {
     changeDialog("objective",spin(dialogIfAlternate));
     changeDialog("alternate", spin(wordingButtonAlternate));
   }
+
   else {
     changeDialog("objective",spin(dialogIfWrongCursor));
     console.log("Nope. cursor to find is still " + winningCursor);
@@ -69,7 +94,7 @@ $("body").click(function( event ) {
 function drawDivs(m) {
   for (var i = 0; i < m ; i++ ) {
     var divHeight =  150 + Math.floor(Math.random()*100) + 'px';
-    var divWidth = Math.floor(Math.random()*50) + '%';
+    var divWidth = Math.floor(Math.random()*30) + 15 + '%';
     var div = document.createElement('div');
     document.getElementById("grid").appendChild(div);
     div.setAttribute('class', 'grid-item');
@@ -84,25 +109,21 @@ function drawDivs(m) {
 // Still need to find the optimal layoutMode
 
 function drawGrid() {
-  $('.grid').isotope({
+  $('.grid').masonry({
     // options
     percentPosition: true,
     itemSelector: '.grid-item',
-    layoutMode: 'packery',
-    packery: {
-      columnWidth: '.grid-sizer'
-    },
     stamp: ".stamp"
   });
   console.log("grid has been successfully created.")
 };
 
-var level;
-document.getElementById("new-game").onclick = function() {newGame(level)};
 
+var delayNewGame = 5000;
 function newGame(level) {
+    changeDialog("new-game", spin(wordingButtonNewGame));
     changeDialog("objective",spin(dialogStartGame));
-    var level = Math.floor(Math.random()* 20) + 7;
+    var level = Math.floor(Math.random()* 15) + 8;
     var o = document.getElementById("grid").childElementCount;
     var oldDivs = document.getElementById("grid");
     for (var i = 0; i < o; i++) {
@@ -113,6 +134,7 @@ function newGame(level) {
     setWinningCursor();
     drawDivs(level);
     drawGrid();
+    document.getElementById("winningCursorImage").style.display = "inline-block";
 };
 
 
@@ -141,13 +163,13 @@ var spin_countVariations = function (spun) {
 
  // INTERACTIONS AND DIALOGS
 
-var dialogStartGame = "{You rock|Thanks|You're a star|Wow, thanks}{!|.|...}\nIt's here somewhere on this page, use your mouse to find it. Click to capture it!";
+var dialogStartGame = "So if you see this one...\nIt's here somewhere on this page, use your mouse to find it. Click to capture it!";
 var dialogIfVictory = "{God bless you!|Theeeeere it was...|Oh! It was there all along?!?}\n{Now, I know that's a lot to ask, but I've actually lost another one... Can you help me?}";
-var dialogIfAlternate = "{If you must know, I am the Shepherd of cursors. I used to be {really|super} important in the world of computers...|Cursors are a really important part of computers. Someone has to care for them.|I have my reasons.}\n{Now{,|} will you help me?}";
-var dialogIfWrongCursor = "{Nope, {I'm afraid |} that's not the one...|Wrong one...|Thanks, but maybe I should ask someone else...}\n{Have you tried scrolling around?|Keep looking!}";
+var dialogIfAlternate = "{We don't have time for this...}\n{If you must know, I am the Shepherd of cursors. I used to be {really|super} important in the world of computers...|Cursors are a really important part of computers. Someone has to care for them.|I have my reasons.}\n{Now{,|} will you help me?}";
+var dialogIfWrongCursor = "{Nope, {{I'm afraid |}that's not the one...|wrong one...}\n{Thanks, but maybe I should ask someone else...|}\n{Have you tried scrolling around?|Keep looking!}";
 var dialogIfNotHere = "";
 var dialogIfPicture = "";
-var wordingButtonAlternate = "{Why?|Nah.|Who are you?|Are those even your cursors?|What?|Do I know you from somewhere?}";
+var wordingButtonAlternate = "{Why?|Who are you?|Are those even your cursors?|What?|Do I know you from somewhere?|Where are we?}";
 var wordingButtonNewGame = "{Sure!|Yeah why not|Ok|I'll take a look}"
 
 
