@@ -112,7 +112,7 @@ function drawDivs(m) {
     div.style.height =  "130px";
     div.style.width = divWidth;
     div.style.cursor = "URL("+availableCursors[i]+"), default";
-    div.style.background = randomColor();
+    // div.style.background = randomColor();
   }
   console.log(m + " divs created");
 };
