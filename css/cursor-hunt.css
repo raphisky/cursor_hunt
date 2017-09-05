@@ -11,16 +11,27 @@ body {
   vertical-align: middle;
   width: auto;
   padding: 12px;
-  box-shadow: 2px 1px 4px 1px #888888;
-
+  cursor: progress;
+  background: #FFFFFF;
+  color: #444444;
+  line-height: 24px;
+  font-size: 16px;
 }
+
+.boxed {
+  box-shadow: 2px 1px 4px 1px #888888;
+  transition: 0.3s;
+}
+
 #grid {
   width: 90%;
-  display: block;
   float: left;
 }
 
+
 #trophies {
+  transition: opacity 2s;
+  opacity: 0;
   position: fixed;
   right: 0;
   top: 0;
@@ -29,7 +40,7 @@ body {
   text-align: center;
   float: right;
   height: 100vh;
-  border-left: 1px dotted grey;
+  border-left: 2px solid grey;
 }
 
 #trophies img {
@@ -41,8 +52,7 @@ body {
 
 
 .grid-item {
-  display: inline-block;
-  background: #FFFFFF;
+  display: block;
   float: left;
 }
 
