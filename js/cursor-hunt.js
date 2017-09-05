@@ -41,6 +41,9 @@ $("body").click(function( event ) {
   if (String(clickedCursor).valueOf() === String(formattedWinningCursor).valueOf() && clickedDivId != "objective" ) {
     console.log("well done.");
     changeDialog("objective",spin(dialogIfVictory));
+    var newTrophy = document.createElement("img");
+    newTrophy.setAttribute("src",winningCursor);
+    document.getElementById("trophies").appendChild(newTrophy);
     document.getElementById("winningCursorImg").style.display = none;
     changeDialog("new-game", spin(wordingButtonNewGame));
   }
@@ -99,7 +102,7 @@ document.getElementById("new-game").onclick = function() {newGame(level)};
 
 function newGame(level) {
     changeDialog("objective",spin(dialogStartGame));
-    var level = Math.floor(Math.random()* 25) + 1;
+    var level = Math.floor(Math.random()* 20) + 7;
     var o = document.getElementById("grid").childElementCount;
     var oldDivs = document.getElementById("grid");
     for (var i = 0; i < o; i++) {
