@@ -1,0 +1,44 @@
+body {
+  margin: 0;
+  cursor: none;
+}
+
+.header {
+  position: fixed;
+  bottom: 20%;
+  left: 0;
+  display: inline-block;
+  vertical-align: middle;
+  width: auto;
+  padding: 12px;
+  box-shadow: 2px -2px 1px #888888;
+
+}
+
+.grid-item {
+  display: inline-block;
+  background: #FFFFFF;
+  float: left;
+}
+
+.interactions {
+  display: block;
+  width: auto;
+  float: left;
+}
+
+.interactions a {
+  display: inline-block;
+  padding: 10px;
+  margin-right: 30px;
+  border: 1px solid black;
+}
+
+
+#objective {
+  display: block;
+}
+
+#winningCursorImg {
+  display: none;
+}
