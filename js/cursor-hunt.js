@@ -46,6 +46,7 @@ $("body").click(function( event ) {
     document.getElementById("trophies").appendChild(newTrophy);
     document.getElementById("winningCursorImg").style.display = none;
     changeDialog("new-game", spin(wordingButtonNewGame));
+    // FIXME : there's a bug that allows to add a trophy as many times as you click on it.
   }
   else if (clickedDivId == "new-game") {
   }
