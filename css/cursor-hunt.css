@@ -1,5 +1,5 @@
 body {
-  cursor: url(../img/small_shepherd_cursor.png), default;
+  cursor: url(../img/small_shepherd_cursor.png), none;
   margin: 0;
   cursor: default;
   font-family: 'Source Code Pro', monospace;
@@ -35,6 +35,7 @@ body {
 }
 
 #grid {
+  position: relative;
   width: 90vw;
   float: left;
   max-height: 100vh;
@@ -147,4 +148,11 @@ body {
 @-o-keyframes fadein {
     from { opacity: 0; }
     to   { opacity: 1; }
+}
+
+// EMOJI ATTACK
+
+.emoji {
+  z-index: 23081991;
+  cursor: wait;
 }
