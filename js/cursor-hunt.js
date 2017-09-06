@@ -179,6 +179,7 @@ function newGame(level) {
 var classToRemove;
 function clearDivs(classToRemove) {
   $(".grid-item").remove();
+  console.log("grid should be clean.")
 };
 
 // SPINTAX
