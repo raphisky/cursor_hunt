@@ -10,15 +10,23 @@ $.getJSON("https://spreadsheets.google.com/feeds/list/1EKoHbcOQAXVUbv9yOYlQ4qL8A
   return cursors;
 });
 
-var availableCursors = [];
-var winningCursor;
+// GAME VARIABLES
+var availableCursors = []; // Cursors currently on the page (refreshed every game)
+var winningCursor; // Cursor to find
+var level; // currently random.
+var rescuedCursors = 0; // incremented whenever a cursor is rescued.
+var canPlay = false; // prevents game from starting on first click.
+var delayNewGame = 2000; // delay between winning a game and starting a new one. Shitty af.
 
-var level;
+
+// PAGE ELEMENTS
 var newGameButton = document.getElementById("new-game");
 var instructionsBox = document.getElementById("instructions");
 var rescuedCursorsBox = document.getElementById("trophies");
 var gridBox = document.getElementById("grid");
 
+
+// START GAME
 newGameButton.onclick = function() {
     changeDialog("objective",spin(dialogStartGame));
     newGame(level);
@@ -27,7 +35,7 @@ newGameButton.onclick = function() {
     rescuedCursorsBox.style.opacity = "1";
 };
 
-
+// Loads availableCursors
 function setCursors(n) {
   availableCursors = [];
   for (var i =0; i < n ; i++) {
@@ -40,6 +48,7 @@ function setCursors(n) {
   return availableCursors;
 };
 
+// Chooses the winning Cursor among availableCursors;
 function setWinningCursor() {
   winningCursor = availableCursors[Math.floor(Math.random()*availableCursors.length)];
   document.getElementById('winningCursorImage').src = winningCursor;
@@ -47,10 +56,17 @@ function setWinningCursor() {
   return winningCursor;
 }
 
-var canPlay = false; // prevents game from starting on first click.
+function addRescuedCursor(cursor) {
+  var newTrophy = document.createElement("img");
+  newTrophy.setAttribute("src",cursor);
+  document.getElementById("trophies").appendChild(newTrophy);
+  document.getElementById("winningCursorImage").style.display = "none";
+  rescuedCursors += 1;
+  console.log("rescuedCursors : "+rescuedCursors);
+  return rescuedCursors;
+};
+
 var introOverlay = document.getElementById("intro");
-var delayNewGame = 2000;
-var mouseX, mouseY;
 
 
 $("body").click(function( event ) {
@@ -68,11 +84,7 @@ $("body").click(function( event ) {
     if (String(clickedCursor).valueOf() === String(formattedWinningCursor).valueOf() && clickedDivId != "objective" ) {
       console.log("well done.");
       changeDialog("objective",spin(dialogIfVictory));
-      // Add trophy to trophy div:
-      var newTrophy = document.createElement("img");
-      newTrophy.setAttribute("src",winningCursor);
-      document.getElementById("trophies").appendChild(newTrophy);
-      document.getElementById("winningCursorImage").style.display = "none";
+      addRescuedCursor(winningCursor);
       //Start new game
       setTimeout(function() {
         newGame(level)
@@ -237,3 +249,20 @@ function changeDialog(id, string) {
   var newDialog = document.getElementById(id).innerText = string;
   return newDialog;
 };
+
+// EMOJI ATTACK
+
+// i need some progression. so level has to be updated when the player finds a cursor.
+
+
+
+var emojis = [];
+
+
+// then I need to make an array containing a lot of emojis.
+// then I need to create a div and put a random emoji in it.
+// then I need to position the div somehwhere on the page.
+// then, I need to make it move towards the rescue box.
+// then, if it is the first div, I must update Dialog and give instructions to the player.
+// it disappears if it is clicked.
+// it needs to run in the background
