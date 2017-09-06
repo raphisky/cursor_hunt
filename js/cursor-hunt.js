@@ -91,7 +91,7 @@ $("body").click(function( event ) {
     }
 
     else if (clickedDivId == "alternate") {
-      changeDialog("objective",spin(dialogIfAlternate));
+      changeDialog("objective",chooseAnswerToAlternateQuestions(event));
       changeDialog("alternate", spin(wordingButtonAlternate));
     }
 
@@ -191,8 +191,46 @@ var dialogIfWrongCursor = "Nope, I'm afraid that's {not the one...|the wrong one
 var dialogIfNotHere = "";
 var dialogIfPicture = "";
 var wordingButtonAlternate = "{Why?|Who are you?|Are those even your cursors?|What?|Do I know you from somewhere?|Where are we?}";
-var wordingButtonNewGame = "{Sure!|Yeah why not|Ok|I'll take a look}"
+var wordingButtonNewGame = "{Sure!|Yeah why not|Ok|I'll take a look}";
 
+var answerIfWhy = "{Because.|Because!}";
+var answerIfWhoareyou = "{No one.|it does not matter.}";
+var answerIfAreThoseYourCursors = "{You ask|You're asking} {a lot of questions.|too much.}";
+var answerIfWhereAreWe = "{No one will hear you scream here, that's for sure|On the internet.}";
+var answerIfDoIKnowYou = "{Never met before.|No chance, no}";
+var answerIfElse = "{GAAAAAAH|GUEEEEEUUUHHH}";
+var answerIfWhat = "{We need to find the cursors!Quick!}"
+
+// Checks what the question in the alternate button is, and returns answer accordingly.
+// This if statement extravaganza could probably be solved if i turned wordingButtonAlternate into an array, then looked for clickedQuestion in this array, and then i'd be fucked either way well that's nice I'm really good at programming apparently.
+var chosenAnswser;
+function chooseAnswerToAlternateQuestions(event) {
+  var clickedQuestion = event.target.text;
+  if (clickedQuestion == "Who are you?") {
+    chosenAnswser = answerIfWhoareyou;
+  }
+  else if (clickedQuestion == "Why?") {
+    chosenAnswser = answerIfWhy;
+  }
+  else if (clickedQuestion == "Are those even your cursors?") {
+    chosenAnswser = answerIfAreThoseYourCursors;
+
+  }
+  else if (clickedQuestion == "Where are we?") {
+    chosenAnswser = answerIfWhereAreWe;
+
+  }
+  else if (clickedQuestion == "Do I know you from somewhere?") {
+    chosenAnswser = answerIfDoIKnowYou;
+  }
+  else if (clickedQuestion == "What?") {
+    chosenAnswser = answerIfWhat;
+  }
+  else {
+    chosenAnswser = answerIfElse;
+  }
+  return spin(chosenAnswser); // this allows us to directly insert this function in the changeDialog function. hopefully.
+}
 
 // Generic function to change the content of a paragraph.
 function changeDialog(id, string) {
