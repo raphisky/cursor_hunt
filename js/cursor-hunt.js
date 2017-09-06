@@ -10,15 +10,23 @@ $.getJSON("https://spreadsheets.google.com/feeds/list/1EKoHbcOQAXVUbv9yOYlQ4qL8A
   return cursors;
 });
 
-var availableCursors = [];
-var winningCursor;
+// GAME VARIABLES
+var availableCursors = []; // Cursors currently on the page (refreshed every game)
+var winningCursor; // Cursor to find
+var level; // currently random.
+var rescuedCursors = 0; // incremented whenever a cursor is rescued.
+var canPlay = false; // prevents game from starting on first click.
+var delayNewGame = 2000; // delay between winning a game and starting a new one. Shitty af.
 
-var level;
+
+// PAGE ELEMENTS
 var newGameButton = document.getElementById("new-game");
 var instructionsBox = document.getElementById("instructions");
 var rescuedCursorsBox = document.getElementById("trophies");
 var gridBox = document.getElementById("grid");
 
+
+// START GAME
 newGameButton.onclick = function() {
     changeDialog("objective",spin(dialogStartGame));
     newGame(level);
@@ -27,19 +35,19 @@ newGameButton.onclick = function() {
     rescuedCursorsBox.style.opacity = "1";
 };
 
-
+// Loads availableCursors
 function setCursors(n) {
   availableCursors = [];
   for (var i =0; i < n ; i++) {
     var chosenCursor = cursors[Math.floor(Math.random()*cursors.length)];
     availableCursors.push(chosenCursor);
     cursors.splice(cursors[chosenCursor],1);
-    console.log("new chosen cursor;" + chosenCursor);
   }
   console.log(availableCursors);
   return availableCursors;
 };
 
+// Chooses the winning Cursor among availableCursors;
 function setWinningCursor() {
   winningCursor = availableCursors[Math.floor(Math.random()*availableCursors.length)];
   document.getElementById('winningCursorImage').src = winningCursor;
@@ -47,10 +55,17 @@ function setWinningCursor() {
   return winningCursor;
 }
 
-var canPlay = false; // prevents game from starting on first click.
+function addRescuedCursor(cursor) {
+  var newTrophy = document.createElement("img");
+  newTrophy.setAttribute("src",cursor);
+  document.getElementById("trophies").appendChild(newTrophy);
+  document.getElementById("winningCursorImage").style.display = "none";
+  rescuedCursors += 1;
+  console.log("rescuedCursors : "+rescuedCursors);
+  return rescuedCursors;
+};
+
 var introOverlay = document.getElementById("intro");
-var delayNewGame = 2000;
-var mouseX, mouseY;
 
 
 $("body").click(function( event ) {
@@ -68,15 +83,18 @@ $("body").click(function( event ) {
     if (String(clickedCursor).valueOf() === String(formattedWinningCursor).valueOf() && clickedDivId != "objective" ) {
       console.log("well done.");
       changeDialog("objective",spin(dialogIfVictory));
-      // Add trophy to trophy div:
-      var newTrophy = document.createElement("img");
-      newTrophy.setAttribute("src",winningCursor);
-      document.getElementById("trophies").appendChild(newTrophy);
-      document.getElementById("winningCursorImage").style.display = "none";
+      addRescuedCursor(winningCursor);
       //Start new game
       setTimeout(function() {
         newGame(level)
       },delayNewGame);
+      // add impact to spawnInterval
+    }
+
+    else if (event.target.className == "emoji") {
+      console.log("touché");
+      killEmoji(event);
+      spawnEmoji();
     }
 
     else if (clickedDivId == "new-game") {
@@ -105,7 +123,7 @@ $("body").click(function( event ) {
 
 function drawDivs(m) {
   for (var i = 0; i < m ; i++ ) {
-    var divHeight =  120 + Math.floor(Math.random()*100) + 'px';
+    var divHeight =  130 + 'px';
     var divWidth = Math.floor(Math.random()*30) + 10 + '%';
     var div = document.createElement('div');
     document.getElementById("grid").appendChild(div);
@@ -113,7 +131,7 @@ function drawDivs(m) {
     div.style.height =  "130px";
     div.style.width = divWidth;
     div.style.cursor = "URL("+availableCursors[i]+"), default";
-    div.style.background = randomColor();
+    // div.style.background = randomColor();
   }
   console.log(m + " divs created");
 };
@@ -133,23 +151,34 @@ function drawGrid() {
 
 function newGame(level) {
   if (canPlay === true) {
-    changeDialog("new-game", spin(wordingButtonNewGame));
-    changeDialog("objective",spin(dialogStartGame));
-    var level = Math.floor(Math.random()* 10) + 15;
-    clearDivs("grid-sizer");
-    console.log("old divs have been removed");
-    setCursors(level);
-    setWinningCursor();
-    drawDivs(level);
-    drawGrid();
-    document.getElementById("winningCursorImage").style.display = "inline-block";
+    if (rescuedCursors == 3){
+      changeDialog("objective","I should warn you. Emojis are lurking around here, and they don't mean well. See one? Kill one.");
+      var level = Math.floor(Math.random()* 10) + 15;
+      clearDivs(".grid-item");
+      setCursors(level);
+      setWinningCursor();
+      drawDivs(level);
+      drawGrid();
+      document.getElementById("winningCursorImage").style.display = "inline-block";
+      setTimeout(spawnEmoji(),4000);
+    }
+    else {
+      changeDialog("objective",spin(dialogStartGame));
+      var level = Math.floor(Math.random()* 10) + 5;
+      clearDivs(".grid-item");
+      setCursors(level);
+      setWinningCursor();
+      drawDivs(level);
+      drawGrid();
+      document.getElementById("winningCursorImage").style.display = "inline-block";
+    }
   }
   else {};
 };
 
 var classToRemove;
 function clearDivs(classToRemove) {
-  $("grid").remove(classToRemove);
+  $(".grid-item").remove();
 };
 
 // SPINTAX
@@ -183,7 +212,7 @@ var spin_countVariations = function (spun) {
 
  // INTERACTIONS AND DIALOGS
 
-var dialogStartGame = "Thanks for your help!\nIt's here somewhere on this page, use your mouse to find it.\nClick to capture it!";
+var dialogStartGame = "Thanks for your help!\nNow let's find {another|this} one...\nClick to capture it!";
 var dialogRestartGame = "";
 var dialogIfVictory = "{God bless you!|Theeeeere it was...|Oh! It was there all along?!?|Yay, thanks!}";
 var dialogIfAlternate =  "{We don't have time for this.|Curiosity killed the cat, you know that right?|You sure have a lot of questions, unique visitor!}\n{I go by the name of the|They call me the} {Lord|Protector} of Cursors. I used to be very important in the world of computers! Now look at me, {asking|begging} for a stranger's help... {Cursors are an endangered species, nowadays. People use their fingers now, can you believe that? Truly disgusting.|Cursors used to be loved and cherished. But people forget.|To tell you the truth, I fear for the very existence of cursors.}\n{Now, if we could go back to our business.|Now, can you help me find this one?|That's why there's no time to waste. Help me rescue them!}";
@@ -200,6 +229,8 @@ var answerIfWhereAreWe = "{No one will hear you scream here, that's for sure|On 
 var answerIfDoIKnowYou = "{Never met before.|No chance, no}";
 var answerIfElse = "{GAAAAAAH|GUEEEEEUUUHHH}";
 var answerIfWhat = "{We need to find the cursors!Quick!}"
+// add are we safe question.
+
 
 // Checks what the question in the alternate button is, and returns answer accordingly.
 // This if statement extravaganza could probably be solved if i turned wordingButtonAlternate into an array, then looked for clickedQuestion in this array, and then i'd be fucked either way well that's nice I'm really good at programming apparently.
@@ -237,3 +268,56 @@ function changeDialog(id, string) {
   var newDialog = document.getElementById(id).innerText = string;
   return newDialog;
 };
+
+// EMOJI ATTACK
+
+// i need some progression. so level has to be updated when the player finds a cursor.
+
+
+// it can only start when you've rescued 2 cursors.
+ var canAttack = false;
+
+ dialogEmojiWarning = "There are some emojis lurking out there.\nThey will harm the cursors!\nSquash them if you see any.";
+
+
+// then I need to make an array containing a lot of emojis.
+var emojis = "{😀|😃|😄|😁|😆|😅|😂|🤣|☺️|😊|😇|🙂|🙃|😉|😌|😍|😘|😗|😙|😚|😋|😜|😝|😛|🤑|🤗|🤓|😎|🤡|🤠|😏|😒|😞|😔|😟|😕|🙁|☹️|😣|😖|😫|😩|😤|😠|😡|😶|😐|😑|😯|😦|😧|😮|😲|😵|😳|😱|😨|😰|😢|😥|🤤|😭|😓|😪|😴|🙄|🤔|🤥|😬|🤐|🤢|🤧|😷|🤒|🤕|😈|👿|👹|👺|💩|👻|💀|☠️|👽|👾|🤖|🎃|😺|😸|😹|😻|😼|😽|🙀|😿|😾|👐|🙌|👏|🙏|🤝|👍|👎|👊|✊|🤛|🤜|🤞|✌️|🤘|👌|👈|👉|👆|👇|☝️|✋|🤚|🖐|🖖|👋|🤙|💪|🖕|✍️|🤳|💅|🖖|💄|💋|👄|👅|👂|👃|👣|👁|👀|🗣|👤|👥|👶|👦|👧|👨|👩|👱‍♀️|👱|👴|👵|👲|👳‍♀️|👳|👮‍♀️|👮|👷‍♀️|👷|💂‍♀️|💂|🕵️‍♀️|🕵️|👩‍⚕️|👨‍⚕️|👩‍🌾|👨‍🌾|👩‍🍳|👨‍🍳|👩‍🎓|👨‍🎓|👩‍🎤|👨‍🎤|👩‍🏫|👨‍🏫|👩‍🏭|👨‍🏭|👩‍💻|👨‍💻|👩‍💼|👨‍💼|👩‍🔧|👨‍🔧|👩‍🔬|👨‍🔬|👩‍🎨|👨‍🎨|👩‍🚒|👨‍🚒|👩‍✈️|👨‍✈️|👩‍🚀|👨‍🚀|👩‍⚖️|👨‍⚖️|🤶|🎅|👸|🤴|👰|🤵|👼|🤰|🙇‍♀️|🙇|💁|💁‍♂️|🙅|🙅‍♂️|🙆|🙆‍♂️|🙋|🙋‍♂️|🤦‍♀️|🤦‍♂️|🤷‍♀️|🤷‍♂️|🙎|🙎‍♂️|🙍|🙍‍♂️|💇|💇‍♂️|💆|💆‍♂️|🕴|💃|🕺|👯|👯‍♂️|🚶‍♀️|🚶|🏃‍♀️|🏃|👫|👭|👬|💑|👩‍❤️‍👩|👨‍❤️‍👨|💏|👩‍❤️‍💋‍👩|👨‍❤️‍💋‍👨|👪|👨‍👩‍👧|👨‍👩‍👧‍👦|👨‍👩‍👦‍👦|👨‍👩‍👧‍👧|👩‍👩‍👦|👩‍👩‍👧|👩‍👩‍👧‍👦|👩‍👩‍👦‍👦|👩‍👩‍👧‍👧|👨‍👨‍👦|👨‍👨‍👧|👨‍👨‍👧‍👦|👨‍👨‍👦‍👦|👨‍👨‍👧‍👧|👩‍👦|👩‍👧|👩‍👧‍👦|👩‍👦‍👦|👩‍👧‍👧|👨‍👦|👨‍👧|👨‍👧‍👦|👨‍👦‍👦|👨‍👧‍👧|👚|👕|👖|👔|👗|👙|👘|👠|👡|👢|👞|👟|👒|🎩|🎓|👑|⛑|🎒|👝|👛|👜|💼|👓|🕶|🌂|☂️|🐶|🐱|🐭|🐹|🐰|🦊|🐻|🐼|🐨|🐯|🦁|🐮|🐷|🐽|🐸|🐵|🙊|🙉|🙊|🐒|🐔|🐧|🐦|🐤|🐣|🐥|🦆|🦅|🦉|🦇|🐺|🐗|🐴|🦄|🐝|🐛|🦋|🐌|🐚|🐞|🐜|🕷|🕸|🐢|🐍|🦎|🦂|🦀|🦑|🐙|🦐|🐠|🐟|🐡|🐬|🦈|🐳|🐋|🐊|🐆|🐅|🐃|🐂|🐄|🦌|🐪|🐫|🐘|🦏|🦍|🐎|🐖|🐐|🐏|🐑|🐕|🐩|🐈|🐓|🦃|🕊|🐇|🐁|🐀|🐿|🐾|🐉|🐲|🌵|🎄|🌲|🌳|🌴|🌱|🌿|☘️|🍀|🎍|🎋|🍃|🍂|🍁|🍄|🌾|💐|🌷|🌹|🥀|🌻|🌼|🌸|🌺|🌎|🌍|🌏|🌕|🌖|🌗|🌘|🌑|🌒|🌓|🌔|🌚|🌝|🌞|🌛|🌜|🌙|💫|⭐️|🌟|✨|⚡️|🔥|💥|☄️|☀️|🌤|⛅️|🌥|🌦|🌈|☁️|🌧|⛈|🌩|🌨|☃️|⛄️|❄️|🌬|💨|🌪|🌫|🌊|💧|💦|☔️|🍏|🍎|🍐|🍊|🍋|🍌|🍉|🍇|🍓|🍈|🍒|🍑|🍍|🥝|🥑|🍅|🍆|🥒|🥕|🌽|🌶|🥔|🍠|🌰|🥜|🍯|🥐|🍞|🥖|🧀|🥚|🍳|🥓|🥞|🍤|🍗|🍖|🍕|🌭|🍔|🍟|🥙|🌮|🌯|🥗|🥘|🍝|🍜|🍲|🍥|🍣|🍱|🍛|🍚|🍙|🍘|🍢|🍡|🍧|🍨|🍦|🍰|🎂|🍮|🍭|🍬|🍫|🍿|🍩|🍪|🥛|🍼|☕️|🍵|🍶|🍺|🍻|🥂|🍷|🥃|🍸|🍹|🍾|🥄|🍴|🍽|⚽️|🏀|🏈|⚾️|🎾|🏐|🏉|🎱|🏓|🏸|🥅|🏒|🏑|🏏|⛳️|🏹|🎣|🥊|🥋|⛸|🎿|⛷|🏂|🏋️‍♀️|🏋️|🤺|🤼‍♀️|🤼‍♂️|🤸‍♀️|🤸‍♂️|⛹️‍♀️|⛹️|🤾‍♀️|🤾‍♂️|🏌️‍♀️|🏌️|🏄‍♀️|🏄|🏊‍♀️|🏊|🤽‍♀️|🤽‍♂️|🚣‍♀️|🚣|🏇|🚴‍♀️|🚴|🚵‍♀️|🚵|🎽|🏅|🎖|🥇|🥈|🥉|🏆|🏵|🎗|🎫|🎟|🎪|🤹‍♀️|🤹‍♂️|🎭|🎨|🎬|🎤|🎧|🎼|🎹|🥁|🎷|🎺|🎸|🎻|🎲|🎯|🎳|🎮|🎰|🚗|🚕|🚙|🚌|🚎|🏎|🚓|🚑|🚒|🚐|🚚|🚛|🚜|🛴|🚲|🛵|🏍|🚨|🚔|🚍|🚘|🚖|🚡|🚠|🚟|🚃|🚋|🚞|🚝|🚄|🚅|🚈|🚂|🚆|🚇|🚊|🚉|🚁|🛩|✈️|🛫|🛬|🚀|🛰|💺|🛶|⛵️|🛥|🚤|🛳|⛴|🚢|⚓️|🚧|⛽️|🚏|🚦|🚥|🗺|🗿|🗽|⛲️|🗼|🏰|🏯|🏟|🎡|🎢|🎠|⛱|🏖|🏝|⛰|🏔|🗻|🌋|🏜|🏕|⛺️|🛤|🛣|🏗|🏭|🏠|🏡|🏘|🏚|🏢|🏬|🏣|🏤|🏥|🏦|🏨|🏪|🏫|🏩|💒|🏛|⛪️|🕌|🕍|🕋|⛩|🗾|🎑|🏞|🌅|🌄|🌠|🎇|🎆|🌇|🌆|🏙|🌃|🌌|🌉|🌁|⌚️|📱|📲|💻|⌨️|🖥|🖨|🖱|🖲|🕹|🗜|💽|💾|💿|📀|📼|📷|📸|📹|🎥|📽|🎞|📞|☎️|📟|📠|📺|📻|🎙|🎚|🎛|⏱|⏲|⏰|🕰|⌛️|⏳|📡|🔋|🔌|💡|🔦|🕯|🗑|🛢|💸|💵|💴|💶|💷|💰|💳|💎|⚖️|🔧|🔨|⚒|🛠|⛏|🔩|⚙️|⛓|🔫|💣|🔪|🗡|⚔️|🛡|🚬|⚰️|⚱️|🏺|🔮|📿|💈|⚗️|🔭|🔬|🕳|💊|💉|🌡|🚽|🚰|🚿|🛁|🛀|🛎|🔑|🗝|🚪|🛋|🛏|🛌|🖼|🛍|🛒|🎁|🎈|🎏|🎀|🎊|🎉|🎎|🏮|🎐|✉️|📩|📨|📧|💌|📥|📤|📦|🏷|📪|📫|📬|📭|📮|📯|📜|📃|📄|📑|📊|📈|📉|🗒|🗓|📆|📅|📇|🗃|🗳|🗄|📋|📁|📂|🗂|🗞|📰|📓|📔|📒|📕|📗|📘|📙|📚|📖|🔖|🔗|📎|🖇|📐|📏|📌|📍|📌|🎌|🏳️|🏴|🏁|🏳️‍🌈|✂️|🖊|🖋|✒️|🖌|🖍|📝|✏️|🔍|🔎|🔏|🔐|🔒|🔓|🤣|🤠|🤡|🤥|🤤|🤢|🤧|🤴|🤶|🤵|🤷|🤦|🤰|🕺|🤳|🤞|🤙|🤛|🤜|🤚|🤝|🖤|🦍|🦊|🦌|🦏|🦇|🦅|🦆|🦉|🦎|🦈|🦐|🦑|🦋|🥀|🥝|🥑|🥔|🥕|🥒|🥜|🥐|🥖|🥞|🥓|🥙|🥚|🥘|🥗|🥛|🥂|🥃|🥄|🛑|🛴|🛵|🛶|🥇|🥈|🥉|🥊|🥋|🤸|🤼|🤽|🤾|🤺|🥅|🤹|🥁|🛒}";
+
+
+
+function spawnEmoji() {
+    var gridHeight = $(window).height();
+    var gridWidth = $(window).width();
+    var emojiPosX = (Math.floor(Math.random()*800)+200) +"px";// random but not too random
+    var emojiPosY = (Math.floor(Math.random()*500)+200) +"px"; // random but not too random
+    var emojiToSpawn = spin(emojis);
+    console.log(emojiToSpawn);
+    var newEmoji = document.createElement("div");
+    document.getElementById("grid").appendChild(newEmoji);
+    newEmoji.style.position = "absolute";
+    newEmoji.style.left = emojiPosX;
+    newEmoji.style.bottom = emojiPosY;
+    newEmoji.style.fontSize = 24 + Math.floor(Math.random)*24 + "px";
+    newEmoji.style.height = 30+"px";
+    newEmoji.style.width = 30+"px";
+    newEmoji.innerText = emojiToSpawn;
+    newEmoji.classList.add("emoji");
+    newEmoji.style.cursor = "url(./img/chainsaw.gif), default";
+    // nice to have: randomly-sized emoji
+}
+
+var spawnInterval = 10000;
+// setInterval(spawnEmoji(),spawnInterval);
+
+
+var emojiBlood = "{url(./img/blood_2.png)|url(./img/blood_6.png)|url(./img/blood_7.png)|url(./img/blood_9.png)|url(./img/blood_10.png)|url(./img/blood_11.png)|url(./img/blood_12.png)|url(./img/blood_14.png)}";
+function killEmoji(event) {
+  event.target.innerText = "";
+  event.target.style.background = spin(emojiBlood) +" no-repeat center";
+  event.target.setAttribute('class','killedEmoji');
+}
+
+// then, I need to make it move towards the rescue box.
+// then, if it is the first div, I must update Dialog and give instructions to the player.
+// it disappears if it is clicked.
+// it needs to run in the background
