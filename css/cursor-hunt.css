@@ -5,6 +5,12 @@ body {
   font-family: 'Source Code Pro', monospace;
 }
 
+.touch-events, .no-csspointervents .introSubtitle {
+  font-size: 24px;
+  content: "Looks like you don't have a mouse. That's a shame. This game has no use for mouseless people. Send the link to yourself, and come back when you have a mouse. Have a good one.";
+
+};
+
 .hidden {
   display: none !important;
 }
