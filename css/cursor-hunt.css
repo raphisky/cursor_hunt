@@ -8,7 +8,6 @@ body {
 .touch-events, .no-csspointervents .introSubtitle {
   font-size: 24px;
   content: "Looks like you don't have a mouse. That's a shame. This game has no use for mouseless people. Send the link to yourself, and come back when you have a mouse. Have a good one.";
-
 };
 
 .hidden {
@@ -116,13 +115,13 @@ body {
   animation: fadein 2s;
 }
 
-.introTitle {
+#introTitle {
   line-height: 16.25vh;
   font-size: 10vh;
   transition: opacity 2s;
 }
 
-.introSubtitle {
+#introSubtitle {
   font-size: 4vh;
   transition: opacity 3s;
 }
